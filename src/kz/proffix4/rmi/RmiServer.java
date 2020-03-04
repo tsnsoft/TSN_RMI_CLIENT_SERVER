@@ -5,51 +5,42 @@ import java.rmi.registry.*;
 import java.rmi.server.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RmiServer implements IRemoteHelloService {
-
+// Класс сервера RMI
+public class RmiServer implements IRemoteService {
+    // Потокозащищенная логическая переменная для возможности остановки сервера
     private static AtomicBoolean stopServer = new AtomicBoolean(false);
 
     @Override
-    public Object sayHello(RemoteHello data) {
-        String txt = "Hello, " + data + "!";
+    // Метод получения данных
+    public Object getData(Person person) {
+        String data;
         try {
-            System.out.println(txt + " from " + UnicastRemoteObject.getClientHost());
+            data = "Hello, " + person + " from " + UnicastRemoteObject.getClientHost();
         } catch (ServerNotActiveException e) {
-            System.out.println(e.getMessage());
+            data = "";
         }
-        return txt;
+        return data;
     }
 
     @Override
+    // Метод остановки сервера
     public void stopServer() {
-        System.out.println("Shutting down...");
         stopServer.set(true);
     }
 
     public static void main(String... args) throws AccessException, RemoteException, AlreadyBoundException {
-
-        System.out.print("Starting registry...");
-
-        final Registry registry = LocateRegistry.createRegistry(IRemoteHelloService.PORT);
-        System.out.println(" OK");
-
-        final IRemoteHelloService service = new RmiServer();
-        Remote stub = UnicastRemoteObject.exportObject(service, 0);
-
-        System.out.print("Binding service...");
-        registry.bind(IRemoteHelloService.BINDING_NAME, stub);
-        System.out.println(" OK");
-
-        while (!stopServer.get()) {
+        System.out.println("Starting service...");
+        final IRemoteService service = new RmiServer();
+        LocateRegistry.createRegistry(IRemoteService.PORT).bind(IRemoteService.SERVICE_NAME, UnicastRemoteObject.exportObject(service, 0));
+        while (!stopServer.get()) { // Бесконечный цикл, пока переменная stopServer не выключит его
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
+                Thread.sleep(100); // Небольшая задержка для правильной работы цикла в потоке
+            } catch (InterruptedException e) { // Завершение потока при внешнем прерывании
                 break;
             }
         }
         System.out.println("Server stopped");
         System.exit(0);
-
     }
 
 }

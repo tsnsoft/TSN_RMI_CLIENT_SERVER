@@ -19,7 +19,7 @@ public class TSN_RMI_CLIENT_SERVER {
                 }
             }, 0);
 
-        // Запуск клиента RMI в отдельном потоке с задержкой 2 секунды
+        // Запуск клиента RMI в отдельном потоке с задержкой 1 секунда
         new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -27,6 +27,7 @@ public class TSN_RMI_CLIENT_SERVER {
                         RmiClient.main();
                     } catch (Exception ex) {
                         System.err.println("RmiClient error!");
+                        ex.printStackTrace();
                     }
                 }
             }, 1000);

@@ -2,18 +2,17 @@ package kz.proffix4.rmi;
 
 import java.rmi.registry.*;
 
+// Клиент RMI
 public class RmiClient {
-
-    final static String HOST = "localhost";
+    final static String HOST = "localhost"; // Адрес сервера
 
     public static void main(String... args) throws Exception {
-        Registry registry = LocateRegistry.getRegistry(HOST, IRemoteHelloService.PORT);
-        IRemoteHelloService service = (IRemoteHelloService) registry.lookup(IRemoteHelloService.BINDING_NAME);
-        System.out.println(service.sayHello(new RemoteHello("John", 23)).toString());
-        System.out.println(service.sayHello(new RemoteHello("Jan", 18)));
-        System.out.println(service.sayHello(new RemoteHello("Hans", 24)));
-        System.out.println(service.sayHello(new RemoteHello("Bill", 31)));
-        Thread.sleep(3000);
-        service.stopServer();
+        Registry server = LocateRegistry.getRegistry(HOST, IRemoteService.PORT);
+        IRemoteService remoteService = (IRemoteService) server.lookup(IRemoteService.SERVICE_NAME);
+        System.out.println(remoteService.getData(new Person("John", 23)));
+        System.out.println(remoteService.getData(new Person("Jan", 18)));
+        System.out.println(remoteService.getData(new Person("Hans", 24)));
+        System.out.println(remoteService.getData(new Person("Bill", 31)));
+        remoteService.stopServer();
     }
 }
